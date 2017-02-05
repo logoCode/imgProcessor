@@ -6,7 +6,7 @@ import(
     "image/png"
     "image/color"
     "os"
-    "imgProcessor/simplexOut"
+    "imgProcessor/data"
     "project-x/scanner"
 )
 
@@ -115,7 +115,7 @@ func createImg(filename, identifier, separator string, accuracy int){
     colors = append(colors, color.RGBA{255,0,255,255})
     colors = append(colors, color.RGBA{255,255,0,255})
     colors = append(colors, color.RGBA{0,0,0,255})
-    d := simplexOut.NewData()
+    d := data.NewData()
     d.CreateFromFile(filename, identifier, separator, accuracy)
     rect := image.Rectangle{image.Point{0, 0}, image.Point{len(d.Img), d.GetWidth()}}
     img := image.NewRGBA(rect)
