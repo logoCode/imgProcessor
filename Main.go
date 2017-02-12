@@ -132,15 +132,16 @@ func createImg(filename, identifier, separator string, accuracy int){
     colors = append(colors, color.RGBA{0,0,0,255})
     d := data.NewData()
     d.CreateFromFile(filename, identifier, separator, accuracy)
-    rect := image.Rectangle{image.Point{0, 0}, image.Point{len(d.Img), d.GetWidth()}}
+    rect := image.Rectangle{image.Point{0, 0}, image.Point{d.X, d.Y}}
     img := image.NewRGBA(rect)
 
-    for i := range d.Img {
-        for j := range d.Img[i]{
-            if d.Img[i][j] < len(colors) {
-                img.SetRGBA(i, j, colors[d.Img[i][j]])
+    for x := range d.Img {
+        for y := range d.Img[x]{
+            if d.Img[x][y] < len(colors) {
+                //(invert y - coordinates, because (0|0) of a image/png is at the top left corner and not at the bottom left as in a coordinate system)
+                img.SetRGBA(x, d.Y - y, colors[d.Img[x][y]])
             }else {
-                img.SetRGBA(i, j, colors[0])
+                img.SetRGBA(x, d.Y - y, colors[0])
             }
         }
     }
