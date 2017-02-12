@@ -7,21 +7,28 @@ import(
     "image/color"
     "os"
     "imgProcessor/data"
+    "log"
     "project-x/scanner"
 )
 
+var filenameIn, filenameOut, identifier, separator string
+var accuracy int
+
+//set default settings and start main menu
 func main(){
-    test()
     fmt.Println("-------------------------------------------------------------------------")
     fmt.Println("----------------------- Welcome to ImageProcessor -----------------------")
     fmt.Println("-----------------------   (C)2017 Max Obermeier   -----------------------")
     fmt.Println("-------------------------------------------------------------------------")
-    var filename, identifier, separator string
-    var accuracy int
-    filename = "output.txt"
+    filenameIn = "output.txt"
     identifier = "$Data"
     separator = "/"
     accuracy = 0
+    menu()
+}
+
+//main menu
+func menu(){
     for {
         fmt.Println()
         fmt.Println("Enter help to get a list of options or type in any other command.")
@@ -35,14 +42,14 @@ func main(){
         }else if input == "colors"{
             listColors()
         }else if input == "settings" {
-            filename, identifier, separator, accuracy = getParameters()
+            filenameIn, filenameOut, identifier, separator, accuracy = getParameters()
         }else if input == "process" {
-            createImg(filename,identifier,separator,accuracy)
+            createImg(filenameIn, filenameOut, identifier, separator, accuracy)
         }
     }
-
 }
 
+//print license
 func license(){
     fmt.Println("MIT License")
     fmt.Println("Copyright (c) 2017 Max Obermeier")
@@ -55,6 +62,7 @@ func license(){
     fmt.Println("")
 }
 
+//list colors and according values
 func listColors(){
     fmt.Println("The third parameter of each highlighted line is portraied as a color.")
     fmt.Println("Here is a list of the colors, with its according value.")
@@ -70,6 +78,7 @@ func listColors(){
 
 }
 
+//list all commands
 func help(){
     fmt.Println("List of options:")
     fmt.Println("  - help \t \t=> Show list of options")
@@ -80,19 +89,24 @@ func help(){
     fmt.Println("  - exit \t \t=> Exit program")
 }
 
-func getParameters() (filename, identifier, separator string, accuracy int){
+//change settings
+func getParameters() (filenameIn, filenameOut, identifier, separator string, accuracy int){
     fmt.Println("Enter the filename of the input file:")
-    filename = scanner.GetString()
+    filenameIn = scanner.GetString()
     fmt.Println("Enter the identifier, the lines containing data start with:")
     identifier = scanner.GetString()
     fmt.Println("Enter the separator, the values are separated with:")
     separator = scanner.GetString()
     fmt.Println("Enter the number of decimal places the coordinates are cut off after:")
     accuracy = scanner.GetI("><",0,10)
+    fmt.Println("Enter the filename of the output file:")
+    filenameOut = scanner.GetString()
     return
 }
 
-func test(){
+//create image
+func createImg(filenameIn, filenameOut, identifier, separator string, accuracy int){
+    //build color slice
     var colors []color.RGBA
     colors = append(colors, color.RGBA{255,255,255,255})
     colors = append(colors, color.RGBA{255,0,0,255})
@@ -102,53 +116,40 @@ func test(){
     colors = append(colors, color.RGBA{255,0,255,255})
     colors = append(colors, color.RGBA{255,255,0,255})
     colors = append(colors, color.RGBA{0,0,0,255})
-    rect := image.Rectangle{image.Point{0, 0}, image.Point{10, 9}}
-    img := image.NewRGBA(rect)
-
-    for i := range colors {
-        for j := 0; j < 10; j++ {
-            img.SetRGBA(j, i, colors[i])
-
-        }
-
-    }
-    f, _ := os.Create("out.png")
-    defer f.Close()
-    err := png.Encode(f, img)
-    if err != nil {
-        fmt.Println(err)
-    }
-}
-
-func createImg(filename, identifier, separator string, accuracy int){
-    var colors []color.RGBA
-    colors = append(colors, color.RGBA{255,255,255,255})
-    colors = append(colors, color.RGBA{255,0,0,255})
-    colors = append(colors, color.RGBA{0,0,255,255})
-    colors = append(colors, color.RGBA{0,255,0,255})
-    colors = append(colors, color.RGBA{0,255,255,255})
-    colors = append(colors, color.RGBA{255,0,255,255})
-    colors = append(colors, color.RGBA{255,255,0,255})
-    colors = append(colors, color.RGBA{0,0,0,255})
+    //create data from file
     d := data.NewData()
-    d.CreateFromFile(filename, identifier, separator, accuracy)
+    err := d.CreateFromFile(filenameIn, identifier, separator, accuracy)
+    //check for any errors
+    if err != nil {
+        log.Println(err)
+        return
+    }
+    //create rectangle with fitting dimensions (rectangle is used to build a rgbaImage)
     rect := image.Rectangle{image.Point{0, 0}, image.Point{d.X, d.Y}}
+    //build image form rectangle
     img := image.NewRGBA(rect)
 
+    //range over x and y coordinates of data.Img
     for x := range d.Img {
         for y := range d.Img[x]{
+            //if there is a specific color for this value in the colors slice use it
             if d.Img[x][y] < len(colors) {
-                //(invert y - coordinates, because (0|0) of a image/png is at the top left corner and not at the bottom left as in a coordinate system)
+                //invert y - coordinates, because (0|0) of a image/png is at the top left corner and not at the bottom left as in a coordinate system
                 img.SetRGBA(x, d.Y - y, colors[d.Img[x][y]])
+            //if there is no color specified just use white
             }else {
+                //invert y - coordinates, because (0|0) of a image/png is at the top left corner and not at the bottom left as in a coordinate system
                 img.SetRGBA(x, d.Y - y, colors[0])
             }
         }
     }
-    f, _ := os.Create("out.png")
+
+    //finally save the image with the given name
+    f, _ := os.Create(filenameOut)
     defer f.Close()
-    err := png.Encode(f, img)
+    err = png.Encode(f, img)
     if err != nil {
-        fmt.Println(err)
+        log.Println(err)
+        return
     }
 }
