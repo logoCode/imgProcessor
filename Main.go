@@ -91,7 +91,7 @@ func help(){
 
 //change settings
 func getParameters() (filenameIn, filenameOut, identifier, separator string, accuracy int){
-    fmt.Println("Enter the filename of the input file:")
+    fmt.Println("Enter the filename of the input file (ending with .txt):")
     filenameIn = scanner.GetString()
     fmt.Println("Enter the identifier, the lines containing data start with:")
     identifier = scanner.GetString()
@@ -99,7 +99,7 @@ func getParameters() (filenameIn, filenameOut, identifier, separator string, acc
     separator = scanner.GetString()
     fmt.Println("Enter the number of decimal places the coordinates are cut off after:")
     accuracy = scanner.GetI("><",0,10)
-    fmt.Println("Enter the filename of the output file:")
+    fmt.Println("Enter the filename of the output file (ending with .png):")
     filenameOut = scanner.GetString()
     return
 }
