@@ -12,4 +12,4 @@ DISPLAY("$Data / %lg / %lg / %d \n", x, y, endVal);
 ```
 The identifier and the separator can be changed in the settings of imgProcessor. There you can also specify the amount of decimals the input values have as a maximum, so that the output image is scaled correctly, and all the information is used.
 
-After you enter the command "process" in imgProcessor, the image will be created and saved in the current directory as "out.png", so make sure, there is no other file with this name, otherwise it will be overwritten.
+After you enter the command "process" in imgProcessor, the image will be created and saved. The output name and location can be specified in the settings.
