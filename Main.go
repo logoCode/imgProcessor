@@ -43,7 +43,10 @@ func menu(){
         }else if input == "colors"{
             listColors()
         }else if input == "settings" {
-            sett.FilenameIn, sett.FilenameOut, sett.Identifier, sett.Separator, sett.Accuracy = getParameters()
+            err := sett.ChangeSettings()
+            if err != nil {
+                log.Println(err)
+            }
         }else if input == "process" {
             createImg(sett.FilenameIn, sett.FilenameOut, sett.Identifier, sett.Separator, sett.Accuracy)
         }
@@ -88,21 +91,6 @@ func help(){
     fmt.Println("  - process \t \t=> Start image creating process")
     fmt.Println("  - colors \t \t=> Show list of colors")
     fmt.Println("  - exit \t \t=> Exit program")
-}
-
-//change settings
-func getParameters() (filenameIn, filenameOut, identifier, separator string, accuracy int){
-    fmt.Println("Enter the filename of the input file (ending with .txt):")
-    filenameIn = scanner.GetString()
-    fmt.Println("Enter the Identifier, the lines containing data start with:")
-    identifier = scanner.GetString()
-    fmt.Println("Enter the Separator, the values are separated with:")
-    separator = scanner.GetString()
-    fmt.Println("Enter the number of decimal places the coordinates are cut off after:")
-    accuracy = scanner.GetI("><",0,10)
-    fmt.Println("Enter the filename of the output file (ending with .png):")
-    filenameOut = scanner.GetString()
-    return
 }
 
 //create image
