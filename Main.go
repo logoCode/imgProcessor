@@ -4,19 +4,15 @@ import(
     "image"
     "fmt"
     "image/png"
-    "image/color"
     "os"
     "imgProcessor/data"
+    "imgProcessor/settings"
     "log"
     "project-x/scanner"
+
 )
 
-type Settings struct {
-    FilenameIn, FilenameOut, Identifier, Separator string
-    Accuracy int
-}
-
-var settings Settings
+var sett settings.Settings
 
 //set default settings and start main menu
 func main(){
@@ -24,10 +20,11 @@ func main(){
     fmt.Println("----------------------- Welcome to ImageProcessor -----------------------")
     fmt.Println("-----------------------   (C)2017 Max Obermeier   -----------------------")
     fmt.Println("-------------------------------------------------------------------------")
-    settings.FilenameIn = "output.txt"
-    settings.Identifier = "$Data"
-    settings.Separator = "/"
-    settings.Accuracy = 0
+    sett.SetDefaultSettings()
+    err := sett.LoadSettings()
+    if err != nil {
+        log.Println(err)
+    }
     menu()
 }
 
@@ -46,9 +43,9 @@ func menu(){
         }else if input == "colors"{
             listColors()
         }else if input == "settings" {
-            settings.FilenameIn, settings.FilenameOut, settings.Identifier, settings.Separator, settings.Accuracy = getParameters()
+            sett.FilenameIn, sett.FilenameOut, sett.Identifier, sett.Separator, sett.Accuracy = getParameters()
         }else if input == "process" {
-            createImg(settings.FilenameIn, settings.FilenameOut, settings.Identifier, settings.Separator, settings.Accuracy)
+            createImg(sett.FilenameIn, sett.FilenameOut, sett.Identifier, sett.Separator, sett.Accuracy)
         }
     }
 }
@@ -94,35 +91,25 @@ func help(){
 }
 
 //change settings
-func getParameters() (settings.FilenameIn, settings.FilenameOut, settings.Identifier, settings.Separator string, settings.Accuracy int){
+func getParameters() (filenameIn, filenameOut, identifier, separator string, accuracy int){
     fmt.Println("Enter the filename of the input file (ending with .txt):")
-    settings.FilenameIn = scanner.GetString()
-    fmt.Println("Enter the settings.Identifier, the lines containing data start with:")
-    settings.Identifier = scanner.GetString()
-    fmt.Println("Enter the settings.Separator, the values are separated with:")
-    settings.Separator = scanner.GetString()
+    filenameIn = scanner.GetString()
+    fmt.Println("Enter the Identifier, the lines containing data start with:")
+    identifier = scanner.GetString()
+    fmt.Println("Enter the Separator, the values are separated with:")
+    separator = scanner.GetString()
     fmt.Println("Enter the number of decimal places the coordinates are cut off after:")
-    settings.Accuracy = scanner.GetI("><",0,10)
+    accuracy = scanner.GetI("><",0,10)
     fmt.Println("Enter the filename of the output file (ending with .png):")
-    settings.FilenameOut = scanner.GetString()
+    filenameOut = scanner.GetString()
     return
 }
 
 //create image
-func createImg(settings.FilenameIn, settings.FilenameOut, settings.Identifier, settings.Separator string, settings.Accuracy int){
-    //build color slice
-    var colors []color.RGBA
-    colors = append(colors, color.RGBA{255,255,255,255})
-    colors = append(colors, color.RGBA{255,0,0,255})
-    colors = append(colors, color.RGBA{0,0,255,255})
-    colors = append(colors, color.RGBA{0,255,0,255})
-    colors = append(colors, color.RGBA{0,255,255,255})
-    colors = append(colors, color.RGBA{255,0,255,255})
-    colors = append(colors, color.RGBA{255,255,0,255})
-    colors = append(colors, color.RGBA{0,0,0,255})
+func createImg(FilenameIn, FilenameOut, Identifier, Separator string, Accuracy int){
     //create data from file
     d := data.NewData()
-    err := d.CreateFromFile(settings.FilenameIn, settings.Identifier, settings.Separator, settings.Accuracy)
+    err := d.CreateFromFile(sett.FilenameIn, sett.Identifier, sett.Separator, sett.Accuracy)
     //check for any errors
     if err != nil {
         log.Println(err)
@@ -137,19 +124,19 @@ func createImg(settings.FilenameIn, settings.FilenameOut, settings.Identifier, s
     for x := range d.Img {
         for y := range d.Img[x]{
             //if there is a specific color for this value in the colors slice use it
-            if d.Img[x][y] < len(colors) {
+            if d.Img[x][y] < len(sett.Colors) {
                 //invert y - coordinates, because (0|0) of a image/png is at the top left corner and not at the bottom left as in a coordinate system
-                img.SetRGBA(x, d.Y - y, colors[d.Img[x][y]])
+                img.SetRGBA(x, d.Y - y, sett.Colors[d.Img[x][y]])
             //if there is no color specified just use white
             }else {
                 //invert y - coordinates, because (0|0) of a image/png is at the top left corner and not at the bottom left as in a coordinate system
-                img.SetRGBA(x, d.Y - y, colors[0])
+                img.SetRGBA(x, d.Y - y, sett.Colors[0])
             }
         }
     }
 
     //finally save the image with the given name
-    f, _ := os.Create(settings.FilenameOut)
+    f, _ := os.Create(sett.FilenameOut)
     defer f.Close()
     err = png.Encode(f, img)
     if err != nil {
