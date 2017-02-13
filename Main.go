@@ -11,8 +11,12 @@ import(
     "project-x/scanner"
 )
 
-var filenameIn, filenameOut, identifier, separator string
-var accuracy int
+type Settings struct {
+    FilenameIn, FilenameOut, Identifier, Separator string
+    Accuracy int
+}
+
+var settings Settings
 
 //set default settings and start main menu
 func main(){
@@ -20,10 +24,10 @@ func main(){
     fmt.Println("----------------------- Welcome to ImageProcessor -----------------------")
     fmt.Println("-----------------------   (C)2017 Max Obermeier   -----------------------")
     fmt.Println("-------------------------------------------------------------------------")
-    filenameIn = "output.txt"
-    identifier = "$Data"
-    separator = "/"
-    accuracy = 0
+    settings.FilenameIn = "output.txt"
+    settings.Identifier = "$Data"
+    settings.Separator = "/"
+    settings.Accuracy = 0
     menu()
 }
 
@@ -42,9 +46,9 @@ func menu(){
         }else if input == "colors"{
             listColors()
         }else if input == "settings" {
-            filenameIn, filenameOut, identifier, separator, accuracy = getParameters()
+            settings.FilenameIn, settings.FilenameOut, settings.Identifier, settings.Separator, settings.Accuracy = getParameters()
         }else if input == "process" {
-            createImg(filenameIn, filenameOut, identifier, separator, accuracy)
+            createImg(settings.FilenameIn, settings.FilenameOut, settings.Identifier, settings.Separator, settings.Accuracy)
         }
     }
 }
@@ -90,22 +94,22 @@ func help(){
 }
 
 //change settings
-func getParameters() (filenameIn, filenameOut, identifier, separator string, accuracy int){
+func getParameters() (settings.FilenameIn, settings.FilenameOut, settings.Identifier, settings.Separator string, settings.Accuracy int){
     fmt.Println("Enter the filename of the input file (ending with .txt):")
-    filenameIn = scanner.GetString()
-    fmt.Println("Enter the identifier, the lines containing data start with:")
-    identifier = scanner.GetString()
-    fmt.Println("Enter the separator, the values are separated with:")
-    separator = scanner.GetString()
+    settings.FilenameIn = scanner.GetString()
+    fmt.Println("Enter the settings.Identifier, the lines containing data start with:")
+    settings.Identifier = scanner.GetString()
+    fmt.Println("Enter the settings.Separator, the values are separated with:")
+    settings.Separator = scanner.GetString()
     fmt.Println("Enter the number of decimal places the coordinates are cut off after:")
-    accuracy = scanner.GetI("><",0,10)
+    settings.Accuracy = scanner.GetI("><",0,10)
     fmt.Println("Enter the filename of the output file (ending with .png):")
-    filenameOut = scanner.GetString()
+    settings.FilenameOut = scanner.GetString()
     return
 }
 
 //create image
-func createImg(filenameIn, filenameOut, identifier, separator string, accuracy int){
+func createImg(settings.FilenameIn, settings.FilenameOut, settings.Identifier, settings.Separator string, settings.Accuracy int){
     //build color slice
     var colors []color.RGBA
     colors = append(colors, color.RGBA{255,255,255,255})
@@ -118,7 +122,7 @@ func createImg(filenameIn, filenameOut, identifier, separator string, accuracy i
     colors = append(colors, color.RGBA{0,0,0,255})
     //create data from file
     d := data.NewData()
-    err := d.CreateFromFile(filenameIn, identifier, separator, accuracy)
+    err := d.CreateFromFile(settings.FilenameIn, settings.Identifier, settings.Separator, settings.Accuracy)
     //check for any errors
     if err != nil {
         log.Println(err)
@@ -145,7 +149,7 @@ func createImg(filenameIn, filenameOut, identifier, separator string, accuracy i
     }
 
     //finally save the image with the given name
-    f, _ := os.Create(filenameOut)
+    f, _ := os.Create(settings.FilenameOut)
     defer f.Close()
     err = png.Encode(f, img)
     if err != nil {
