@@ -32,7 +32,8 @@ func main(){
 func menu(){
     for {
         fmt.Println()
-        fmt.Println("MAIN MENU:")
+        fmt.Println("----- MAIN MENU ---------------------------------------------------------")
+        fmt.Println()
         fmt.Println("Enter help to get a list of options or type in any other command.")
         input := scanner.GetS("==","help","license","settings","process","exit")
         if input == "help" {
@@ -54,20 +55,23 @@ func menu(){
 
 //print license
 func license(){
-    fmt.Println("MIT License")
+    fmt.Println()
+    fmt.Println("----- MIT LICENSE -------------------------------------------------------")
+    fmt.Println()
     fmt.Println("Copyright (c) 2017 Max Obermeier")
-    fmt.Println("")
+    fmt.Println()
     fmt.Println(`Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:"`)
-    fmt.Println("")
+    fmt.Println()
     fmt.Println("The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.")
-    fmt.Println("")
+    fmt.Println()
     fmt.Println(`THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.`)
-    fmt.Println("")
 }
 
 //list all commands
 func help(){
-    fmt.Println("List of options:")
+    fmt.Println()
+    fmt.Println("----- LIST OF OPTIONS ---------------------------------------------------")
+    fmt.Println()
     fmt.Println("  - help \t \t=> Show list of options")
     fmt.Println("  - license \t \t=> Show license")
     fmt.Println("  - settings \t \t=> Show and change processing parameters")
@@ -114,6 +118,6 @@ func createImg(FilenameIn, FilenameOut, Identifier, Separator string, Accuracy i
         return
     }
 
+    fmt.Println()
     fmt.Println("Image was created successfully !")
-
 }

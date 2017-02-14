@@ -24,8 +24,10 @@ type Settings struct {
 
 //change settings
 func (settings *Settings) SettingsMenu() error {
-    fmt.Println("SETTINGS MENU:")
     for {
+        fmt.Println()
+        fmt.Println("----- SETTINGS MENU -----------------------------------------------------")
+        fmt.Println()
         fmt.Println("Enter help to get a list of options or type in any other command.")
         input := scanner.GetS("==","help","list","filenameIn","filenameOut","filenameOut","separator","identifier","accuracy","color","return")
         switch input {
@@ -100,7 +102,9 @@ func (settings *Settings) changeColor(kInt int, v string) error {
 
 //list all commands
 func help(){
-    fmt.Println("List of options:")
+    fmt.Println()
+    fmt.Println("----- LIST OF OPTIONS ---------------------------------------------------")
+    fmt.Println()
     fmt.Println("  - help \t \t=> Show list of options")
     fmt.Println("  - list \t \t=> List all settings and according values")
     fmt.Println("  - filenameIn \t \t=> Change name of input file")
@@ -114,7 +118,9 @@ func help(){
 
 //list settings
 func (settings *Settings) listSettings(){
-    fmt.Println("List of settings:")
+    fmt.Println()
+    fmt.Println("----- LIST OF SETTINGS --------------------------------------------------")
+    fmt.Println()
     fmt.Println("  - input filename: " + settings.FilenameIn)
     fmt.Println("  - output filename: " + settings.FilenameOut)
     fmt.Println("  - identifier: " + settings.Identifier)
