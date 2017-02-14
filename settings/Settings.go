@@ -10,6 +10,7 @@ import(
     "os"
     "fmt"
     "project-x/scanner"
+    "log"
 )
 
 type Settings struct {
@@ -22,23 +23,107 @@ type Settings struct {
 
 
 //change settings
-func (settings *Settings) ChangeSettings() error {
-    fmt.Println("Enter the filename of the input file (ending with .txt):")
-    settings.FilenameIn = scanner.GetString()
-    fmt.Println("Enter the Identifier, the lines containing data start with:")
-    settings.Identifier = scanner.GetString()
-    fmt.Println("Enter the Separator, the values are separated with:")
-    settings.Separator = scanner.GetString()
-    fmt.Println("Enter the number of decimal places the coordinates are cut off after:")
-    settings.Accuracy = scanner.GetI("><",0,10)
-    fmt.Println("Enter the filename of the output file (ending with .png):")
-    settings.FilenameOut = scanner.GetString()
-    //save settings to json
-    err := settings.SaveSettings()
+func (settings *Settings) SettingsMenu() error {
+    fmt.Println("SETTINGS MENU:")
+    for {
+        fmt.Println("Enter help to get a list of options or type in any other command.")
+        input := scanner.GetS("==","help","list","filenameIn","filenameOut","filenameOut","separator","identifier","accuracy","color","return")
+        switch input {
+        case "help":
+            help()
+        case "list":
+            settings.listSettings()
+        case "filenameIn":
+            fmt.Println("Enter the filename of the input file (ending with .txt):")
+            settings.FilenameIn = scanner.GetString()
+        case "filenameOut":
+            fmt.Println("Enter the filename of the output file (ending with .png):")
+            settings.FilenameOut = scanner.GetString()
+        case "separator":
+            fmt.Println("Enter the Separator, the values are separated with:")
+            settings.Separator = scanner.GetString()
+        case "identifier":
+            fmt.Println("Enter the Identifier, the lines containing data start with:")
+            settings.Identifier = scanner.GetString()
+        case "accuracy":
+            fmt.Println("Enter the number of decimal places the coordinates are cut off after:")
+            settings.Accuracy = scanner.GetI("><",0,10)
+        case "color":
+            fmt.Println("Enter the value of the color you want to change:")
+            k := scanner.GetI(">=",0)
+            fmt.Println("enter delete to delete it, or type in the rgba value in the syntax r/g/b/a:")
+            v := scanner.GetString()
+            if v == "delete" {
+                //if there are still colors afterwards, set it to white
+                if k < len(settings.Colors) - 1 {
+                    settings.Colors[k] = color.RGBA{255,255,255,255}
+                //otherwise delete it
+                }else if k == len(settings.Colors) - 1 {
+                    settings.Colors = settings.Colors[:len(settings.Colors) - 1]
+                }else {
+                    log.Println("color not found")
+                }
+            }else {
+                err := settings.changeColor(k,v)
+                if err != nil {
+                    log.Println(err)
+                }
+            }
+        case "return":
+            //save settings to json and return
+            err := settings.SaveSettings()
+            if err != nil {
+                return err
+            }
+            return nil
+        }
+    }
+}
+
+//change a color
+func (settings *Settings) changeColor(kInt int, v string) error {
+    col, err := getRGBA(v)
     if err != nil {
         return err
+    }else {
+        //in case the slice isn't long enought yet its size is increased
+        if len(settings.Colors) <= kInt {
+            neededLen := kInt + 1 - len(settings.Colors)
+            for i := 0; i < neededLen; i++ {
+                settings.Colors = append(settings.Colors, color.RGBA{255,255,255,255})
+            }
+        }
+        settings.Colors[kInt] = col
     }
     return nil
+}
+
+//list all commands
+func help(){
+    fmt.Println("List of options:")
+    fmt.Println("  - help \t \t=> Show list of options")
+    fmt.Println("  - list \t \t=> List all settings and according values")
+    fmt.Println("  - filenameIn \t \t=> Change name of input file")
+    fmt.Println("  - filenameOut \t=> Change name of output file")
+    fmt.Println("  - separator \t \t=> Change separator")
+    fmt.Println("  - identifier \t \t=> Change identifier")
+    fmt.Println("  - accuracy \t \t=> Change accuracy")
+    fmt.Println("  - color \t \t=> Change a color")
+    fmt.Println("  - return \t \t=> Return to main menu and save settings")
+}
+
+//list settings
+func (settings *Settings) listSettings(){
+    fmt.Println("List of settings:")
+    fmt.Println("  - input filename: " + settings.FilenameIn)
+    fmt.Println("  - output filename: " + settings.FilenameOut)
+    fmt.Println("  - identifier: " + settings.Identifier)
+    fmt.Println("  - separator: " + settings.Separator)
+    fmt.Println("  - accuracy: " + strconv.Itoa(settings.Accuracy))
+    fmt.Println("  - colors:")
+    for i, color := range settings.Colors {
+        fmt.Println("      - " + strconv.Itoa(i) + " : " + getString(color))
+    }
 }
 
 //set settings to default
@@ -48,7 +133,7 @@ func (settings *Settings) SetDefaultSettings(){
     settings.Identifier = "$Data"
     settings.Separator = "/"
     settings.Accuracy = 0
-    //build color slice
+    //build default color slice
     settings.Colors = append(settings.Colors, color.RGBA{255,255,255,255})
     settings.Colors = append(settings.Colors, color.RGBA{255,0,0,255})
     settings.Colors = append(settings.Colors, color.RGBA{0,0,255,255})
@@ -78,11 +163,11 @@ func (settings *Settings) SaveSettings() error {
     //add all colors to text
     for i := range settings.Colors {
         if i < len(settings.Colors) - 1 {
-            text = text + `"` + strconv.Itoa(i) + `": "` + getString(settings.Colors[i]) + `",
+            text = text + `"` + strconv.Itoa(i) + `": "` + getJsonString(settings.Colors[i]) + `",
     `
         //take care of the missing comma in the last line
         }else {
-            text = text + `"` + strconv.Itoa(i) + `": "` + getString(settings.Colors[i]) + `"
+            text = text + `"` + strconv.Itoa(i) + `": "` + getJsonString(settings.Colors[i]) + `"
 `
         }
     }
@@ -126,20 +211,7 @@ func (settings *Settings) LoadSettings() error {
             }
         //for colors
         }else if err == nil {
-            var col color.RGBA
-            col, err = getRGBA(v)
-            if err != nil {
-                return err
-            }else {
-                //in case the slice isn't long enought yet its size is increased
-                if len(settings.Colors) <= kInt {
-                    neededLen := kInt + 1 - len(settings.Colors)
-                    for i := 0; i < neededLen; i++ {
-                        settings.Colors = append(settings.Colors, color.RGBA{255,255,255,255})
-                    }
-                }
-                settings.Colors[kInt] = col
-            }
+            settings.changeColor(kInt, v)
         //for strings
         }else {
             switch k {
@@ -160,8 +232,13 @@ func (settings *Settings) LoadSettings() error {
 }
 
 //translate color.RGBA to string
-func getString(color.RGBA) string {
-    return "255/255/255/255"
+func getString(c color.RGBA) string {
+    return "rgba(" + strconv.Itoa(int(c.R)) + "," + strconv.Itoa(int(c.G)) + "," + strconv.Itoa(int(c.B)) + "," + strconv.Itoa(int(c.A)) + ")"
+}
+
+//translate color.RGBA to string for json file
+func getJsonString(c color.RGBA) string {
+    return strconv.Itoa(int(c.R)) + "/" + strconv.Itoa(int(c.G)) + "/" + strconv.Itoa(int(c.B)) + "/" + strconv.Itoa(int(c.A))
 }
 
 //translate string to color.RGBA

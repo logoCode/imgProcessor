@@ -32,18 +32,17 @@ func main(){
 func menu(){
     for {
         fmt.Println()
+        fmt.Println("MAIN MENU:")
         fmt.Println("Enter help to get a list of options or type in any other command.")
-        input := scanner.GetS("==","help","license","colors","settings","process","exit")
+        input := scanner.GetS("==","help","license","settings","process","exit")
         if input == "help" {
             help()
         }else if input == "license" {
             license()
         }else if input == "exit" {
             os.Exit(0)
-        }else if input == "colors"{
-            listColors()
         }else if input == "settings" {
-            err := sett.ChangeSettings()
+            err := sett.SettingsMenu()
             if err != nil {
                 log.Println(err)
             }
@@ -66,30 +65,13 @@ func license(){
     fmt.Println("")
 }
 
-//list colors and according values
-func listColors(){
-    fmt.Println("The third parameter of each highlighted line is portraied as a color.")
-    fmt.Println("Here is a list of the colors, with its according value.")
-    fmt.Println("  - 0 \t \t=> white")
-    fmt.Println("  - 1 \t \t=> red")
-    fmt.Println("  - 2 \t \t=> blue")
-    fmt.Println("  - 3 \t \t=> green")
-    fmt.Println("  - 4 \t \t=> turquoise")
-    fmt.Println("  - 5 \t \t=> purple")
-    fmt.Println("  - 6 \t \t=> yellow")
-    fmt.Println("  - 7 \t \t=> black")
-    fmt.Println("  - > 7 \t=> white")
-
-}
-
 //list all commands
 func help(){
     fmt.Println("List of options:")
     fmt.Println("  - help \t \t=> Show list of options")
     fmt.Println("  - license \t \t=> Show license")
-    fmt.Println("  - settings \t \t=> Set processing parameters")
+    fmt.Println("  - settings \t \t=> Show and change processing parameters")
     fmt.Println("  - process \t \t=> Start image creating process")
-    fmt.Println("  - colors \t \t=> Show list of colors")
     fmt.Println("  - exit \t \t=> Exit program")
 }
 
@@ -131,4 +113,7 @@ func createImg(FilenameIn, FilenameOut, Identifier, Separator string, Accuracy i
         log.Println(err)
         return
     }
+
+    fmt.Println("Image was created successfully !")
+
 }
