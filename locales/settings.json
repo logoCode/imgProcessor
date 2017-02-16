@@ -1,6 +1,6 @@
 {
-    "filenameIn": "in.txt",
-    "filenameOut": "out.png",
+    "filenameIn": "out.txt",
+    "filenameOut": "output.png",
     "separator": "/",
     "identifier": "$Data",
     "accuracy": "1",

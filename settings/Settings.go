@@ -16,7 +16,7 @@ import(
 type Settings struct {
     FilenameIn, FilenameOut, Identifier, Separator string
     Accuracy int
-    Colors []color.RGBA
+    Colors map[int]color.RGBA
 }
 
 
@@ -56,12 +56,9 @@ func (settings *Settings) SettingsMenu() error {
             fmt.Println("enter delete to delete it, or type in the rgba value in the syntax r/g/b/a:")
             v := scanner.GetString()
             if v == "delete" {
-                //if there are still colors afterwards, set it to white
-                if k < len(settings.Colors) - 1 {
-                    settings.Colors[k] = color.RGBA{255,255,255,255}
-                //otherwise delete it
-                }else if k == len(settings.Colors) - 1 {
-                    settings.Colors = settings.Colors[:len(settings.Colors) - 1]
+                _, ok := settings.Colors[k]
+                if ok {
+                    delete(settings.Colors, k)
                 }else {
                     log.Println("color not found")
                 }
@@ -88,13 +85,6 @@ func (settings *Settings) changeColor(kInt int, v string) error {
     if err != nil {
         return err
     }else {
-        //in case the slice isn't long enought yet its size is increased
-        if len(settings.Colors) <= kInt {
-            neededLen := kInt + 1 - len(settings.Colors)
-            for i := 0; i < neededLen; i++ {
-                settings.Colors = append(settings.Colors, color.RGBA{255,255,255,255})
-            }
-        }
         settings.Colors[kInt] = col
     }
     return nil
@@ -127,8 +117,8 @@ func (settings *Settings) listSettings(){
     fmt.Println("  - separator: " + settings.Separator)
     fmt.Println("  - accuracy: " + strconv.Itoa(settings.Accuracy))
     fmt.Println("  - colors:")
-    for i, color := range settings.Colors {
-        fmt.Println("      - " + strconv.Itoa(i) + " : " + getString(color))
+    for i := 0; i <= getMaximumKey(settings.Colors); i++ {
+        fmt.Println("      - " + strconv.Itoa(i) + " : " + getString(settings.Colors[i]))
     }
 }
 
@@ -140,14 +130,15 @@ func (settings *Settings) SetDefaultSettings(){
     settings.Separator = "/"
     settings.Accuracy = 0
     //build default color slice
-    settings.Colors = append(settings.Colors, color.RGBA{255,255,255,255})
-    settings.Colors = append(settings.Colors, color.RGBA{255,0,0,255})
-    settings.Colors = append(settings.Colors, color.RGBA{0,0,255,255})
-    settings.Colors = append(settings.Colors, color.RGBA{0,255,0,255})
-    settings.Colors = append(settings.Colors, color.RGBA{0,255,255,255})
-    settings.Colors = append(settings.Colors, color.RGBA{255,0,255,255})
-    settings.Colors = append(settings.Colors, color.RGBA{255,255,0,255})
-    settings.Colors = append(settings.Colors, color.RGBA{0,0,0,255})
+    settings.Colors = make(map[int]color.RGBA)
+    settings.Colors[0] = color.RGBA{255,255,255,255}
+    settings.Colors[1] = color.RGBA{255,0,0,255}
+    settings.Colors[2] = color.RGBA{0,0,255,255}
+    settings.Colors[3] = color.RGBA{0,255,0,255}
+    settings.Colors[4] = color.RGBA{0,255,255,255}
+    settings.Colors[5] = color.RGBA{255,0,255,255}
+    settings.Colors[6] = color.RGBA{255,255,0,255}
+    settings.Colors[7] = color.RGBA{0,0,0,255}
 }
 
 //save settings to json file
@@ -167,8 +158,9 @@ func (settings *Settings) SaveSettings() error {
     text = text + `"accuracy": "` + strconv.Itoa(settings.Accuracy) + `",
     `
     //add all colors to text
-    for i := range settings.Colors {
-        if i < len(settings.Colors) - 1 {
+    maxKey := getMaximumKey(settings.Colors)
+    for i := 0; i <= maxKey; i++ {
+        if i < maxKey {
             text = text + `"` + strconv.Itoa(i) + `": "` + getJsonString(settings.Colors[i]) + `",
     `
         //take care of the missing comma in the last line
@@ -266,4 +258,13 @@ func getRGBA(colString string) (color.RGBA, error) {
     }
     //create and return rgba color
     return color.RGBA{rgbaInts[0],rgbaInts[1],rgbaInts[2],rgbaInts[3]}, nil
+}
+
+func getMaximumKey(colors map[int]color.RGBA) (max int) {
+    for i := range colors {
+        if i > max {
+            max = i
+        }
+    }
+    return
 }
