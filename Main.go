@@ -1,11 +1,9 @@
 package main
 
 import(
-    "image"
     "fmt"
-    "image/png"
     "os"
-    "imgProcessor/data"
+    "imgProcessor/process"
     "imgProcessor/settings"
     "log"
     "project-x/scanner"
@@ -17,8 +15,10 @@ var sett settings.Settings
 //set default settings and start main menu
 func main(){
     fmt.Println("-------------------------------------------------------------------------")
+    fmt.Println("-------------------------------------------------------------------------")
     fmt.Println("----------------------- Welcome to ImageProcessor -----------------------")
     fmt.Println("-----------------------   (C)2017 Max Obermeier   -----------------------")
+    fmt.Println("-------------------------------------------------------------------------")
     fmt.Println("-------------------------------------------------------------------------")
     sett.SetDefaultSettings()
     err := sett.LoadSettings()
@@ -48,7 +48,13 @@ func menu(){
                 log.Println(err)
             }
         }else if input == "process" {
-            createImg(sett.FilenameIn, sett.FilenameOut, sett.Identifier, sett.Separator, sett.Accuracy)
+            err := process.CreateImg(sett)
+            if err != nil {
+                log.Println(err)
+            }else {
+                fmt.Println()
+                fmt.Println("Image was created successfully !")
+            }
         }
     }
 }
@@ -77,47 +83,4 @@ func help(){
     fmt.Println("  - settings \t \t=> Show and change processing parameters")
     fmt.Println("  - process \t \t=> Start image creating process")
     fmt.Println("  - exit \t \t=> Exit program")
-}
-
-//create image
-func createImg(FilenameIn, FilenameOut, Identifier, Separator string, Accuracy int){
-    //create data from file
-    d := data.NewData()
-    err := d.CreateFromFile(sett.FilenameIn, sett.Identifier, sett.Separator, sett.Accuracy)
-    //check for any errors
-    if err != nil {
-        log.Println(err)
-        return
-    }
-    //create rectangle with fitting dimensions (rectangle is used to build a rgbaImage)
-    rect := image.Rectangle{image.Point{0, 0}, image.Point{d.X, d.Y}}
-    //build image form rectangle
-    img := image.NewRGBA(rect)
-
-    //range over x and y coordinates of data.Img
-    for x := range d.Img {
-        for y := range d.Img[x]{
-            //if there is a specific color for this value in the colors slice use it
-            if d.Img[x][y] < len(sett.Colors) {
-                //invert y - coordinates, because (0|0) of a image/png is at the top left corner and not at the bottom left as in a coordinate system
-                img.SetRGBA(x, d.Y - y, sett.Colors[d.Img[x][y]])
-            //if there is no color specified just use white
-            }else {
-                //invert y - coordinates, because (0|0) of a image/png is at the top left corner and not at the bottom left as in a coordinate system
-                img.SetRGBA(x, d.Y - y, sett.Colors[0])
-            }
-        }
-    }
-
-    //finally save the image with the given name
-    f, _ := os.Create(sett.FilenameOut)
-    defer f.Close()
-    err = png.Encode(f, img)
-    if err != nil {
-        log.Println(err)
-        return
-    }
-
-    fmt.Println()
-    fmt.Println("Image was created successfully !")
 }

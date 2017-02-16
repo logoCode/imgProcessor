@@ -38,6 +38,7 @@ func (d *Data) CreateFromFile(filename, identifier, separator string, accuracy i
     if err != nil {
         return err
     }
+    defer file.Close()
     //convert to readable scanner
     scanner := bufio.NewScanner(file)
     //scan over each line

@@ -1,5 +1,5 @@
 {
-    "filenameIn": "out.txt",
+    "filenameIn": "in.txt",
     "filenameOut": "output.png",
     "separator": "/",
     "identifier": "$Data",
