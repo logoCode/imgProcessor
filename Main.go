@@ -4,8 +4,8 @@ import(
     "fmt"
     "strconv"
     "os"
-    "imgProcessor/process"
-    "imgProcessor/settings"
+    "extendedPlotter/process"
+    "extendedPlotter/settings"
     "log"
     "project-x/scanner"
 
@@ -17,7 +17,7 @@ var sett settings.Settings
 func main(){
     fmt.Println("-------------------------------------------------------------------------")
     fmt.Println("-------------------------------------------------------------------------")
-    fmt.Println("----------------------- Welcome to ImageProcessor -----------------------")
+    fmt.Println("---------------------- Welcome to extendedPlotter! ----------------------")
     fmt.Println("-----------------------   (C)2017 Max Obermeier   -----------------------")
     fmt.Println("-------------------------------------------------------------------------")
     fmt.Println("-------------------------------------------------------------------------")
@@ -36,7 +36,7 @@ func menu(){
         fmt.Println("----- MAIN MENU ---------------------------------------------------------")
         fmt.Println()
         fmt.Println("Enter help to get a list of options or type in any other command.")
-        input := scanner.GetS("==","help","license","settings","process","exit")
+        input := scanner.GetS("==","help","license","settings","plot","exit")
         if input == "help" {
             help()
         }else if input == "license" {
@@ -48,7 +48,7 @@ func menu(){
             if err != nil {
                 log.Println(err)
             }
-        }else if input == "process" {
+        }else if input == "plot" {
             err := process.CreateImg(sett)
             if err != nil {
                 log.Println(err)
@@ -82,7 +82,7 @@ func help(){
     fmt.Println("  - help \t \t=> Show list of options")
     fmt.Println("  - license \t \t=> Show license")
     fmt.Println("  - settings \t \t=> Show and change processing parameters")
-    fmt.Println("  - process \t \t=> Start image creating process")
+    fmt.Println("  - plot \t \t=> Start image creating process")
     fmt.Println("  - exit \t \t=> Exit program")
 }
 
