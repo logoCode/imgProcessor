@@ -4,8 +4,8 @@ import(
     "image"
     "image/png"
     "os"
-    "imgProcessor/data"
-    "imgProcessor/settings"
+    "extendedPlotter/data"
+    "extendedPlotter/settings"
 )
 
 //create image
