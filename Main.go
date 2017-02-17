@@ -2,6 +2,7 @@ package main
 
 import(
     "fmt"
+    "strconv"
     "os"
     "imgProcessor/process"
     "imgProcessor/settings"
@@ -43,7 +44,7 @@ func menu(){
         }else if input == "exit" {
             os.Exit(0)
         }else if input == "settings" {
-            err := sett.SettingsMenu()
+            err := settingsMenu()
             if err != nil {
                 log.Println(err)
             }
@@ -83,4 +84,93 @@ func help(){
     fmt.Println("  - settings \t \t=> Show and change processing parameters")
     fmt.Println("  - process \t \t=> Start image creating process")
     fmt.Println("  - exit \t \t=> Exit program")
+}
+
+//list all commands
+func helpSettings(){
+    fmt.Println()
+    fmt.Println("----- LIST OF OPTIONS ---------------------------------------------------")
+    fmt.Println()
+    fmt.Println("  - help \t \t=> Show list of options")
+    fmt.Println("  - list \t \t=> List all settings and according values")
+    fmt.Println("  - filenameIn \t \t=> Change name of input file")
+    fmt.Println("  - filenameOut \t=> Change name of output file")
+    fmt.Println("  - separator \t \t=> Change separator")
+    fmt.Println("  - identifier \t \t=> Change identifier")
+    fmt.Println("  - accuracy \t \t=> Change accuracy")
+    fmt.Println("  - color \t \t=> Change a color")
+    fmt.Println("  - return \t \t=> Return to main menu and save settings")
+}
+
+//list settings
+func listSettings(){
+    fmt.Println()
+    fmt.Println("----- LIST OF SETTINGS --------------------------------------------------")
+    fmt.Println()
+    fmt.Println("  - input filename: " + sett.FilenameIn)
+    fmt.Println("  - output filename: " + sett.FilenameOut)
+    fmt.Println("  - identifier: " + sett.Identifier)
+    fmt.Println("  - separator: " + sett.Separator)
+    fmt.Println("  - accuracy: " + strconv.Itoa(sett.Accuracy))
+    fmt.Println("  - colors:")
+    for i := 0; i <= settings.GetMaximumKey(sett.Colors); i++ {
+        fmt.Println("      - " + strconv.Itoa(i) + " : " + settings.GetString(sett.Colors[i]))
+    }
+}
+
+//change settings
+func settingsMenu() error {
+    for {
+        fmt.Println()
+        fmt.Println("----- SETTINGS MENU -----------------------------------------------------")
+        fmt.Println()
+        fmt.Println("Enter help to get a list of options or type in any other command.")
+        input := scanner.GetS("==","help","list","filenameIn","filenameOut","filenameOut","separator","identifier","accuracy","color","return")
+        switch input {
+        case "help":
+            helpSettings()
+        case "list":
+            listSettings()
+        case "filenameIn":
+            fmt.Println("Enter the filename of the input file (ending with .txt):")
+            sett.FilenameIn = scanner.GetString()
+        case "filenameOut":
+            fmt.Println("Enter the filename of the output file (ending with .png):")
+            sett.FilenameOut = scanner.GetString()
+        case "separator":
+            fmt.Println("Enter the Separator, the values are separated with:")
+            sett.Separator = scanner.GetString()
+        case "identifier":
+            fmt.Println("Enter the Identifier, the lines containing data start with:")
+            sett.Identifier = scanner.GetString()
+        case "accuracy":
+            fmt.Println("Enter the number of decimal places the coordinates are cut off after:")
+            sett.Accuracy = scanner.GetI("><",0,10)
+        case "color":
+            fmt.Println("Enter the value of the color you want to change:")
+            k := scanner.GetI(">=",0)
+            fmt.Println("enter delete to delete it, or type in the rgba value in the syntax r/g/b/a:")
+            v := scanner.GetString()
+            if v == "delete" {
+                _, ok := sett.Colors[k]
+                if ok {
+                    delete(sett.Colors, k)
+                }else {
+                    log.Println("color not found")
+                }
+            }else {
+                err := sett.ChangeColor(k,v)
+                if err != nil {
+                    log.Println(err)
+                }
+            }
+        case "return":
+            //save settings to json and return
+            err := sett.SaveSettings()
+            if err != nil {
+                return err
+            }
+            return nil
+        }
+    }
 }

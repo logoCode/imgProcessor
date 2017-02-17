@@ -2,7 +2,7 @@
 
 ## description
 
-This command line application is intended to be used to display the output of Simplex3 experiments visually on coordinate systems. Although starting positions of some object are meant to be aligned to the axis of the coordinate system, any other value can be used.  So, while the axis describe input values of the model, the color of each pixel indicates its final state. 
+This command line application is intended to be used to display the output of Simplex3 experiments visually on coordinate systems. Although starting positions of some object are meant to be aligned to the axis of the coordinate system, any other value can be used.  So, while the axis describe input values of the model, the color of each pixel indicates its final state.
 
 ## documentation
 
@@ -13,3 +13,7 @@ DISPLAY("$Data / %lg / %lg / %d \n", x, y, endVal);
 The identifier and the separator can be changed in the settings of imgProcessor. There you can also specify the amount of decimals the input values have as a maximum, so that the output image is scaled correctly, and all the information is used. Even though there are seven default colors, you can specify as many as you want.
 
 After you enter the command "process" in imgProcessor, the image will be created and saved. The output name and location can be specified in the settings.
+
+##Source Code
+
+Source code and executables can be found [here](www.github.com/logoCode/imgProcessor).
