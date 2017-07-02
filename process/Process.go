@@ -26,7 +26,7 @@ func CreateImg(s settings.Settings) error {
 	for x := range d.Img {
 		for y := range d.Img[x] {
 			//set the color of the current pixel according to its value in d.Img (if it doesn't exist, it is set transparent)
-			img.SetRGBA(x, d.Y-y, s.Colors[d.Img[x][y]])
+			img.SetRGBA(x, d.Y-y-1, s.Colors[d.Img[x][y]])
 		}
 	}
 
