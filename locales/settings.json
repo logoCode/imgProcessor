@@ -3,7 +3,7 @@
     "filenameOut": "out.png",
     "separator": "/",
     "identifier": "$Data",
-    "accuracy": "1",
+    "accuracy": "2",
     "0": "255/255/255/255",
     "1": "255/0/0/255",
     "2": "0/0/255/255",
