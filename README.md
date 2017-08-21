@@ -14,6 +14,6 @@ The identifier and the separator can be changed in the settings of extendedPlott
 
 After you enter the command "plot" in extendedPlotter, the image will be created and saved. The output name and location can be specified in the settings.
 
-##Source Code
+## source code
 
 Source code and executables can be found [here](www.github.com/theMomax/extendedPlotter).
